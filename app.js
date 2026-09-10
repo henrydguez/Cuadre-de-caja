@@ -1,8 +1,10 @@
-const denominations = [0.01, 0.02, 0.05, 0.10, 0.20, 0.50, 1, 2, 5, 10, 20, 50];
+const denominations = [500, 200, 100, 50, 20, 10, 5, 2, 1, 0.50, 0.20, 0.10];
 const container = document.querySelector('#denominations');
 const template = document.querySelector('#denomination-template');
 const grandTotal = document.querySelector('#grand-total');
 const resetButton = document.querySelector('#reset');
+const keypad = document.querySelector('#numeric-keypad');
+let activeInput = null;
 
 const euro = new Intl.NumberFormat('es-ES', {
   style: 'currency',
@@ -61,6 +63,47 @@ function loadState() {
   }
 }
 
+function showKeypad(input) {
+  activeInput = input;
+  keypad.hidden = false;
+  document.querySelectorAll('.numeric-keypad button').forEach(button => button.classList.remove('active'));
+  requestAnimationFrame(() => positionKeypad());
+}
+
+function hideKeypad() {
+  activeInput = null;
+  keypad.hidden = true;
+}
+
+function positionKeypad() {
+  if (!activeInput || keypad.hidden) return;
+  const rect = activeInput.getBoundingClientRect();
+  const gap = 6;
+  const width = Math.min(window.innerWidth - 12, 270);
+  keypad.style.width = `${width}px`;
+  let left = rect.left;
+  if (left + width > window.innerWidth - 6) left = window.innerWidth - width - 6;
+  if (left < 6) left = 6;
+  const keypadHeight = keypad.offsetHeight;
+  let top = rect.bottom + gap;
+  if (top + keypadHeight > window.innerHeight - 6) top = rect.top - keypadHeight - gap;
+  if (top < 6) top = 6;
+  keypad.style.left = `${left}px`;
+  keypad.style.top = `${top}px`;
+}
+
+function applyKey(key) {
+  if (!activeInput) return;
+  if (key === 'clear') activeInput.value = '';
+  else if (key === 'backspace') activeInput.value = activeInput.value.slice(0, -1);
+  else if (/^\d$/.test(key)) {
+    activeInput.value = `${activeInput.value}${key}`.replace(/^0+(?=\d)/, '');
+  }
+  calculate();
+  activeInput.focus({ preventScroll: true });
+  positionKeypad();
+}
+
 denominations.forEach((value, index) => {
   const card = template.content.cloneNode(true);
   const article = card.querySelector('.card');
@@ -71,15 +114,32 @@ denominations.forEach((value, index) => {
   container.appendChild(card);
 });
 
-container.addEventListener('input', (event) => {
-  if (event.target.matches('input')) {
-    if (event.target.value !== '' && Number(event.target.value) < 0) event.target.value = 0;
-    calculate();
-  }
+container.addEventListener('focusin', (event) => {
+  if (event.target.matches('input')) showKeypad(event.target);
 });
+
+container.addEventListener('click', (event) => {
+  if (event.target.matches('input')) showKeypad(event.target);
+});
+
+keypad.addEventListener('pointerdown', (event) => {
+  const button = event.target.closest('button[data-key]');
+  if (!button) return;
+  event.preventDefault();
+  applyKey(button.dataset.key);
+});
+
+document.addEventListener('pointerdown', (event) => {
+  if (keypad.hidden || event.target.closest('#numeric-keypad') || event.target.matches('.strong-input,.small-input')) return;
+  hideKeypad();
+});
+
+window.addEventListener('resize', positionKeypad);
+window.addEventListener('scroll', positionKeypad, true);
 
 resetButton.addEventListener('click', () => {
   document.querySelectorAll('input').forEach(input => input.value = '');
+  hideKeypad();
   calculate();
 });
 

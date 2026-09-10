@@ -1,4 +1,4 @@
-const denominations = [500, 200, 100, 50, 20, 10, 5, 2, 1, 0.50, 0.20, 0.10];
+const denominations = [50, 20, 10, 5, 2, 1, 0.50, 0.20, 0.10, 0.05, 0.02, 0.01];
 const container = document.querySelector('#denominations');
 const template = document.querySelector('#denomination-template');
 const grandTotal = document.querySelector('#grand-total');
@@ -13,7 +13,7 @@ const euro = new Intl.NumberFormat('es-ES', {
 function formatDenomination(value) { return euro.format(value).replace(/\s?$/, ''); }
 function getNumber(input) {
   if (input.value.trim() === '') return 0;
-  const value = Number.parseInt(input.value.replace(',', '.'), 10);
+  const value = Number.parseFloat(input.value.replace(',', '.'));
   return Number.isFinite(value) && value >= 0 ? value : 0;
 }
 function saveState() {

@@ -13,7 +13,7 @@ const euro = new Intl.NumberFormat('es-ES', {
 function formatDenomination(value) { return euro.format(value).replace(/\s?$/, ''); }
 function getNumber(input) {
   if (input.value.trim() === '') return 0;
-  const value = Number.parseInt(input.value, 10);
+  const value = Number.parseInt(input.value.replace(',', '.'), 10);
   return Number.isFinite(value) && value >= 0 ? value : 0;
 }
 function saveState() {
@@ -49,8 +49,9 @@ function loadState() {
 function showKeypad(input) { activeInput = input; input.focus({ preventScroll: true }); }
 function applyKey(key) {
   if (!activeInput) return;
-  if (key === 'clear') activeInput.value = '';
-  else if (key === 'backspace') activeInput.value = activeInput.value.slice(0, -1);
+  if (key === 'decimal') {
+    if (!activeInput.value.includes(',')) activeInput.value = activeInput.value === '' ? '0,' : `${activeInput.value},`;
+  } else if (key === 'backspace') activeInput.value = activeInput.value.slice(0, -1);
   else if (/^\d$/.test(key)) activeInput.value = `${activeInput.value}${key}`.replace(/^0+(?=\d)/, '');
   calculate();
   activeInput.focus({ preventScroll: true });

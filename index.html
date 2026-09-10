@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Cuadre de caja por denominaciones de euro.">
+  <title>Cuadre de Caja</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div class="header-icon" aria-hidden="true">▣</div>
+      <div>
+        <h1>Cuadre de Caja</h1>
+        <p>Introduce las cantidades de cada denominación y calcula el total automáticamente.</p>
+      </div>
+    </header>
+
+    <section id="denominations" class="grid" aria-label="Denominaciones de euro"></section>
+
+    <section class="grand-total" aria-live="polite">
+      <div class="grand-total-label">
+        <span class="coins-icon" aria-hidden="true">◉</span>
+        <span>Total en caja</span>
+      </div>
+      <strong id="grand-total">0,00 €</strong>
+    </section>
+
+    <div class="actions">
+      <button id="reset" type="button" class="reset">↻ &nbsp;Reiniciar</button>
+    </div>
+  </main>
+
+  <template id="denomination-template">
+    <article class="card">
+      <h2 class="denomination"></h2>
+      <div class="field-row">
+        <label>Caja fuerte</label>
+        <input class="strong-input" type="number" min="0" step="1" inputmode="numeric" value="0" aria-label="Cantidad en caja fuerte">
+      </div>
+      <div class="field-row">
+        <label>Caja menor</label>
+        <input class="small-input" type="number" min="0" step="1" inputmode="numeric" value="0" aria-label="Cantidad en caja menor">
+      </div>
+      <div class="total-row">
+        <span>Total</span>
+        <strong class="card-total">0,00 €</strong>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>

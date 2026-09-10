@@ -46,7 +46,12 @@ function loadState() {
     });
   } catch { localStorage.removeItem('cuadreCaja'); }
 }
-function showKeypad(input) { activeInput = input; input.focus({ preventScroll: true }); }
+function syncKeypadLayout() {
+  if (!keypad) return;
+  const height = Math.ceil(keypad.getBoundingClientRect().height);
+  if (height > 0) document.documentElement.style.setProperty('--keypad-height', `${height}px`);
+}
+function showKeypad(input) { activeInput = input; input.focus({ preventScroll: true }); syncKeypadLayout(); }
 function applyKey(key) {
   if (!activeInput) return;
   if (key === 'decimal') {
@@ -87,3 +92,10 @@ resetButton.addEventListener('click', () => {
 
 loadState();
 calculate();
+syncKeypadLayout();
+
+if ('ResizeObserver' in window) {
+  new ResizeObserver(syncKeypadLayout).observe(keypad);
+}
+window.addEventListener('resize', syncKeypadLayout, { passive: true });
+window.addEventListener('orientationchange', () => setTimeout(syncKeypadLayout, 50), { passive: true });

@@ -16,15 +16,20 @@ function formatDenomination(value) {
 }
 
 function getNumber(input) {
+  if (input.value.trim() === '') return 0;
   const value = Number.parseInt(input.value, 10);
   return Number.isFinite(value) && value >= 0 ? value : 0;
 }
 
 function saveState() {
-  const values = [...document.querySelectorAll('.card')].map(card => ({
-    strong: getNumber(card.querySelector('.strong-input')),
-    small: getNumber(card.querySelector('.small-input'))
-  }));
+  const values = [...document.querySelectorAll('.card')].map(card => {
+    const strongInput = card.querySelector('.strong-input');
+    const smallInput = card.querySelector('.small-input');
+    return {
+      strong: strongInput.value === '' ? '' : getNumber(strongInput),
+      small: smallInput.value === '' ? '' : getNumber(smallInput)
+    };
+  });
   localStorage.setItem('cuadreCaja', JSON.stringify(values));
 }
 
@@ -46,8 +51,10 @@ function loadState() {
     const saved = JSON.parse(localStorage.getItem('cuadreCaja') || '[]');
     document.querySelectorAll('.card').forEach((card, index) => {
       if (!saved[index]) return;
-      card.querySelector('.strong-input').value = Math.max(0, saved[index].strong || 0);
-      card.querySelector('.small-input').value = Math.max(0, saved[index].small || 0);
+      const strong = saved[index].strong;
+      const small = saved[index].small;
+      card.querySelector('.strong-input').value = strong === '' ? '' : Math.max(0, Number(strong) || 0);
+      card.querySelector('.small-input').value = small === '' ? '' : Math.max(0, Number(small) || 0);
     });
   } catch {
     localStorage.removeItem('cuadreCaja');
@@ -66,13 +73,13 @@ denominations.forEach((value, index) => {
 
 container.addEventListener('input', (event) => {
   if (event.target.matches('input')) {
-    if (event.target.value === '' || Number(event.target.value) < 0) event.target.value = 0;
+    if (event.target.value !== '' && Number(event.target.value) < 0) event.target.value = 0;
     calculate();
   }
 });
 
 resetButton.addEventListener('click', () => {
-  document.querySelectorAll('input').forEach(input => input.value = 0);
+  document.querySelectorAll('input').forEach(input => input.value = '');
   calculate();
 });
 
